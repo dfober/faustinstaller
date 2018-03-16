@@ -7,7 +7,7 @@ name=faust
 createfaustuser() {
 	echo "Create $name user"
 	addgroup -f $group
-	useradd -c "Faust" -m -g $group -p $apr1$nHGI0Q5e$0mNv0DJ2ptyA8OKdYicco1 -s /bin/bash -r $name && chmod go-rx /home/$name
+	useradd -c "Faust" -m -g $group -p '$apr1$nHGI0Q5e$0mNv0DJ2ptyA8OKdYicco1' -s /bin/bash -r $name && chmod go-rx /home/$name
 
 }
 
