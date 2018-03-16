@@ -15,8 +15,6 @@ echo
 echo
 ./install.faustwebsite.sh
 echo
-./install.https.sh
-echo
 ./install.faustservice.sh
 echo
 ./install.onlinecompiler.sh
@@ -24,6 +22,8 @@ echo
 ./install.faustplayground.sh
 echo
 ./install.editor.sh
+echo
+./install.https.sh
 echo "Faust services installation done"
 echo -n "Faust services installed on " >> $log
 date >> $log
