@@ -5,8 +5,9 @@ set -e
 # various settings are here
 ####################################################
 FAUSTBRANCH=master-dev
+LINUXDISTRIB=`lsb_release -cs`
 FAUSTDEPENDS="build-essential g++-multilib pkg-config git libmicrohttpd-dev llvm-3.8 llvm-3.8-dev libssl-dev ncurses-dev libsndfile-dev libedit-dev libcurl4-openssl-dev vim-common cmake"
-FAUSTSDKDEPENDS="libgtk2.0-dev libasound2-dev libqrencode-dev portaudio19-dev libjack-jackd2-dev qjackctl libcsound64-dev dssi-dev lv2-dev puredata-dev supercollider-dev wget unzip libboost-dev inkscape graphviz"
+FAUSTSDKDEPENDS="libgtk2.0-dev libqt4-dev libasound2-dev libqrencode-dev portaudio19-dev libjack-jackd2-dev libcsound64-dev dssi-dev lv2-dev puredata-dev supercollider-dev wget unzip libboost-dev inkscape graphviz"
 INSTALLDIR=$(pwd)
 
 ####################################################
@@ -24,7 +25,7 @@ install_qt5() {
 install_faust2pd() {
 	echo "###################### Install faust2pd..."
 	$SUDO apt-get install -y software-properties-common
-	$SUDO add-apt-repository -y ppa:dr-graef/pure-lang.xenial
+	$SUDO add-apt-repository -y "ppa:dr-graef/pure-lang.$LINUXDISTRIB"
 	$SUDO apt-get -y update
 	$SUDO apt-get install -y faust2pd faust2pd-extra
 }
@@ -33,11 +34,9 @@ install_faust2pd() {
 # Install pd.dll needed to cross compile pd externals for windows
 install_pd_dll() {
 	echo "###################### Install pd dll..."
+	$SUDO install -d /usr/lib/i686-w64-mingw32/pd/
 	if [ ! -d /usr/lib/i686-w64-mingw32/pd/pd.dll ]; then
- # don't fetch the dll from the faust website any more
- # it fails regularly and will especially fail if the faust site is not available 
- #       wget http://faust.grame.fr/pd.dll || wget http://ifaust.grame.fr/pd.dll
-        $SUDO cp $INSTALLDIR/rsrc/pd.dll /usr/include/pd/
+        $SUDO cp $INSTALLDIR/rsrc/pd.dll /usr/lib/i686-w64-mingw32/pd/
     fi
 }
 
@@ -97,27 +96,8 @@ install_bela() {
 }
 
 ####################################################
-# make world recovery 
-try_llvm() {
- 	echo "###################### try to use LLVM_CONFIG..."
-	# find llvm-config
-	if [ -x /usr/bin/llvm-config ] 
-	then
-		LLVM_CONFIG=llvm-config 
-	else
-		LLVM_CONFIG=$(find /usr/bin -name 'llvm-config*' | sed -e 's/\/usr\/bin\///')
-	fi
-	which $LLVM_CONFIG > /dev/null || (echo "cannot find llvm-config (or derived)"; exit 1)
-	
-	cd build/faustdir && cmake .. -DUSE_LLVM_CONFIG=on -DLLVM_CONFIG=$LLVM_CONFIG
-	cd ../..
-	make world
-}
-
-####################################################
-installfaust() {
-	# Install 'Installation directory' if needed
-	[ -d ~/FaustInstall ] || mkdir ~/FaustInstall
+installsdk() {
+	#
 	cd ~/FaustInstall
 
 	# for some reason which sudo doesn't work with Docker Ubuntu 16.04
@@ -154,28 +134,12 @@ installfaust() {
 	install_max_sdk
 
 	# Install ROS Jade, see $(lsb_release -sc) instead of xenial
-	install_ros
+	#install_ros
 
 	# Install Bela
 	install_bela
 
-	# Install Latex
-    $SUDO apt-get install -y texlive-full
-
-	# Install Faust if needed
-	echo "###################### Install faust..."
-	[ -d "faust" ] || git clone https://github.com/grame-cncm/faust.git
-
-	# Update and compile Faust
-	cd faust
-	git checkout $FAUSTBRANCH
-	git pull
-	make world || try_llvm
-	$SUDO make newinstall  # will be install once 'newinstall' is validated by packagers
-	faust -v
-	cd ..
-
-	echo "Installation Done!"
+	echo "SDKs Installation Done!"
 }
 
-installfaust
+installsdk

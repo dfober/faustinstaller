@@ -16,18 +16,24 @@ install_android() {
 	fi
 
 	## install java 8
-    $SUDO apt install -y openjdk-8-jdk
+    $SUDO apt install -y openjdk-8-jdk zip
 
 	if [ ! -d ~/FaustInstall/android ]; then
         install -d ~/FaustInstall/android
 	fi
-	cd ~/FaustInstall/android
-	wget https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
+	
+	# to avoid some warnings
+	install -d $HOME/.android/
+	touch $HOME/.android/repositories.cfg
 
+	cd ~/FaustInstall/android
+	if [ ! -d ~/FaustInstall/android/sdk-tools-linux-3859397.zip ]; then
+		wget https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
+	fi
 	unzip sdk-tools-linux-3859397.zip
 
 	## install licenses
-	yes | sudo ./tools/bin/sdkmanager --licenses
+	yes | ./tools/bin/sdkmanager --licenses
 	
 	./tools/bin/sdkmanager "build-tools;25.0.3" 
 	./tools/bin/sdkmanager "cmake;3.6.4111459" 

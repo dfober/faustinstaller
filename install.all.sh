@@ -5,11 +5,17 @@ log=install.log
 
 ####################################################
 # install faust and associated services
-./install.faust.sh
+./install.compiler.sh
+echo
+./install.sdk.sh
+echo
+./install.latex.sh
 echo
 ./install.android.sh
 echo
 ./install.faustwebsite.sh
+echo
+./install.https.sh
 echo
 ./install.faustservice.sh
 echo
